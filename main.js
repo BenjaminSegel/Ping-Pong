@@ -8,7 +8,7 @@
 
 let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
-let snowball = document.getElementById('snowball')
+let snowball = document.getElementById("snowball");
 let lastTime = Date.now();
 
 let playerOne;
@@ -27,7 +27,8 @@ playerOne = {
   height: 150,
   playerOneMovingUp: false,
   playerOneMovingDown: false,
-  vel: 500
+  vel: 500,
+  
 };
 playerTwo = {
   x: canvas.width - 25 * 2,
@@ -36,21 +37,20 @@ playerTwo = {
   height: 150,
   playerTwoMovingUp: false,
   playerTwoMovingDown: false,
-  vel: 500
+  vel: 500,
 };
 
 ball = {
-    x : 400,
-    y : 400,
-    radius : 12,
-    vel: 350
-    }
+  x: 400,
+  y: 400,
+  width: 50,
+  height: 50,
+  velX: -300,
+  velY: 0,
+  hasBouncedPOne: false, 
+  hasBouncedPTwo: false, 
+};
 
-
-
-  
-  
-    
 window.addEventListener("keydown", function (event) {
   if (event.key === "w") {
     playerOneMovingUp = true;
@@ -59,7 +59,7 @@ window.addEventListener("keydown", function (event) {
   }
   if (event.key === "ArrowUp") {
     playerTwoMovingUp = true;
-  }else if (event.key === "ArrowDown"){
+  } else if (event.key === "ArrowDown") {
     playerTwoMovingDown = true;
   }
 });
@@ -71,7 +71,7 @@ window.addEventListener("keyup", function (event) {
   }
   if (event.key === "ArrowUp") {
     playerTwoMovingUp = false;
-  }else if (event.key === "ArrowDown"){
+  } else if (event.key === "ArrowDown") {
     playerTwoMovingDown = false;
   }
 });
@@ -89,11 +89,10 @@ function tick() {
     playerOne.y += playerOne.vel * deltaTime;
   }
 
-
-  if(playerTwoMovingDown && playerTwo.y < canvas.height - playerTwo.height){
+  if (playerTwoMovingDown && playerTwo.y < canvas.height - playerTwo.height) {
     playerTwo.y += playerTwo.vel * deltaTime;
   }
-  if(playerTwoMovingUp && playerTwo.y > 0){
+  if (playerTwoMovingUp && playerTwo.y > 0) {
     playerTwo.y -= playerTwo.vel * deltaTime;
   }
 
@@ -102,17 +101,52 @@ function tick() {
   ctx.fillStyle = "red";
   ctx.fillRect(playerTwo.x, playerTwo.y, playerTwo.width, playerTwo.height);
 
-  ctx.drawImage(snowball,ball.x, ball.y, 50, 50)
-  
-  ball.x += ball.vel * deltaTime;
+  ctx.drawImage(snowball, ball.x, ball.y, ball.width, ball.height);
+
+  ball.x += ball.velX * deltaTime;
+  ball.y += ball.velY * deltaTime;
 
 
+  if(ball.hasBouncedPOne){
+    ball.velX = -300 * -1
+    ball.velY = 60
+    ball.hasBouncedPOne = false;
+  }else if(ball.hasBouncedPTwo){
+    ball.velX = 300 * -1
+    ball.velY = -40
+    ball.hasBouncedPTwo = false;
+  }
+
+  if (pOneCollision(playerOne, ball)) {
+    ball.hasBouncedPOne = true;
+    
+  } else{
+    
+  }
+  if (pOneCollision(playerTwo, ball)) {
+    ball.hasBouncedPTwo = true;
+    console.log('hej')
+    
+  } else{
+    
+  }
 
   requestAnimationFrame(tick);
 }
 
-requestAnimationFrame(tick);
-
-function collision(object1, object2, object3){
-  object1.y + object1.width < object2.y   
+function pOneCollision(padelOne, snowball) {
+  if (
+   // padelOne.y - padelOne.height > snowball.y &&
+   padelOne.y < snowball.y + snowball.height &&
+    padelOne.y + padelOne.height > snowball.y &&
+    padelOne.x + padelOne.width > snowball.x  && 
+    padelOne.x <  snowball.x + snowball.width
+  )
+ {
+    return true;
+  } else {
+    return false;
+  }
 }
+
+requestAnimationFrame(tick);
