@@ -1,19 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pingpong</title>
-    <style>
-        #canvas{
-            border: solid black 2px;
-        }
-    </style>
-</head>
-<body>
-    <img src="snöboll.png" id="snowball" style = "display: none">
+    <link rel="stylesheet" href="style.css" />
+    <style></style>
+  </head>
+  <body>
+    <img src="snöboll.png" id="snowball" style="display: none" />
 
-    <canvas id="canvas" height="800" width="800"></canvas>
+    <canvas id="canvas" height="800" width="800"> </canvas>
+
+    <div class="container">
+      <table class="score-list" id="points-table">
+        <tr>
+          <th class="score">team-name</th>
+          <th class="score">points</th>
+        </tr>
+      </table>
+      <button class="restart-btn" id="restart-btn" style="display: none">
+        Start Game
+      </button>
+    </div>
+
     <script src="main.js"></script>
-</body>
+  </body>
 </html>

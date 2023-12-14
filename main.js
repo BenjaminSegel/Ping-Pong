@@ -5,11 +5,12 @@
 // 1 collission = 1 poäng
 // Bollen kan endast åka ut på kortsidorna, och inte på långsidorna av canvas.
 // Poäng och spelarnas namn sparar i local storage.
-
 let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
 let snowball = document.getElementById("snowball");
-let lastTime = Date.now();
+let lastTime;
+let restartButton = document.getElementById("restart-btn");
+let pointsTable = document.getElementById("points-table");
 
 let playerOne;
 let playerTwo;
@@ -17,40 +18,98 @@ let playerOneMovingUp;
 let playerOneMovingDown;
 let playerTwoMovingUp;
 let playerTwoMovingDown;
+let bounceCount;
 let vel;
 let ball;
 
-playerOne = {
-  x: 25,
-  y: 400,
-  width: 25,
-  height: 150,
-  playerOneMovingUp: false,
-  playerOneMovingDown: false,
-  vel: 500,
-  
-};
-playerTwo = {
-  x: canvas.width - 25 * 2,
-  y: 400,
-  width: 25,
-  height: 150,
-  playerTwoMovingUp: false,
-  playerTwoMovingDown: false,
-  vel: 500,
-};
+function saveToLocalStorage(name, points) {
+  let data = localStorage.getItem("points");
+  let allPoints = data ? JSON.parse(data) : [];
 
-ball = {
-  x: 400,
-  y: 400,
-  width: 50,
-  height: 50,
-  velX: -300,
-  velY: 0,
-  hasBouncedPOne: false, 
-  hasBouncedPTwo: false, 
-};
+  allPoints.push({
+    name,
+    points,
+  });
 
+  localStorage.setItem("points", JSON.stringify(allPoints));
+}
+
+
+
+
+function renderPointsTable(){
+
+  let data = localStorage.getItem("points");
+  let allPoints = data ? JSON.parse(data) : [];
+
+  while (pointsTable.children.length > 1) {
+    pointsTable.children[1].remove();
+  }
+
+  for(let i = 0; i < allPoints.length; i++){
+    let namePoints = allPoints[i];
+
+    allPoints.sort(function (a, b) {
+      return b.points - a.points;
+    });
+
+    let row = document.createElement("tr");
+    let name = document.createElement("td");
+    let points = document.createElement("td");
+
+    name.innerText = namePoints.name;
+    points.innerText = namePoints.points;
+
+    row.append(name, points);
+    pointsTable.append(row);
+
+   
+    }
+
+
+}
+
+restartButton.addEventListener("click", function () {
+  startGame();
+  restartButton.style.display = "none";
+});
+
+function startGame() {
+  playerOne = {
+    x: 25,
+    y: 400,
+    width: 25,
+    height: 150,
+    playerOneMovingUp: false,
+    playerOneMovingDown: false,
+    vel: 500,
+  };
+  playerTwo = {
+    x: canvas.width - 25 * 2,
+    y: 400,
+    width: 25,
+    height: 150,
+    playerTwoMovingUp: false,
+    playerTwoMovingDown: false,
+    vel: 500,
+  };
+
+  ball = {
+    x: 400,
+    y: 400,
+    width: 50,
+    height: 50,
+    velX: -300,
+    velY: 0,
+  };
+  renderPointsTable()
+  bounceCount = 0;
+  lastTime = Date.now();
+  requestAnimationFrame(tick);
+
+
+
+}
 window.addEventListener("keydown", function (event) {
   if (event.key === "w") {
     playerOneMovingUp = true;
@@ -82,6 +141,9 @@ function tick() {
   let deltaTime = (now - lastTime) / 1000;
   lastTime = now;
 
+  if (ball.y < 0 || ball.y > canvas.height - ball.height) {
+    ball.velY *= -1;
+  }
   if (playerOneMovingUp && playerOne.y > 0) {
     playerOne.y -= playerOne.vel * deltaTime;
   }
@@ -106,47 +168,57 @@ function tick() {
   ball.x += ball.velX * deltaTime;
   ball.y += ball.velY * deltaTime;
 
+  if (ball.x < 0 || ball.x > canvas.width - ball.width) {
+    let name = prompt("Write team-name");
+    saveToLocalStorage(name, bounceCount);
+    renderPointsTable()
 
-  if(ball.hasBouncedPOne){
-    ball.velX = -300 * -1
-    ball.velY = 60
-    ball.hasBouncedPOne = false;
-  }else if(ball.hasBouncedPTwo){
-    ball.velX = 300 * -1
-    ball.velY = -40
-    ball.hasBouncedPTwo = false;
+    restartButton.style.display = "block";
+  } else {
+    requestAnimationFrame(tick);
   }
 
-  if (pOneCollision(playerOne, ball)) {
-    ball.hasBouncedPOne = true;
-    
-  } else{
-    
+  if (collision(playerOne, ball) && ball.y === 400) {
+    ball.velX = 320;
+    ball.velY = 100 * Math.random();
+    bounceCount++;
+  } else if (collision(playerOne, ball) && ball.y > 400) {
+    ball.velX = 330;
+    ball.velY = 200 * -Math.random();
+    bounceCount++;
+  } else if (collision(playerOne, ball) && ball.y < 400) {
+    ball.velX = 330;
+    ball.velY = 200 * -Math.random();
+    bounceCount++;
   }
-  if (pOneCollision(playerTwo, ball)) {
-    ball.hasBouncedPTwo = true;
-    console.log('hej')
-    
-  } else{
-    
+  if (collision(playerTwo, ball) && ball.y < 400) {
+    ball.velX = -360;
+    ball.velY = 200 * Math.random();
+    bounceCount++;
+  } else if (collision(playerTwo, ball) && ball.y > 400) {
+    ball.velX = -320;
+    ball.velY = 200 * -Math.random();
+    bounceCount++;
   }
 
-  requestAnimationFrame(tick);
+  ctx.font = "25px cursive";
+  ctx.fillStyle = "black";
+  ctx.fillText("Points: " + bounceCount, 380, 30);
+  console.log(bounceCount);
 }
 
-function pOneCollision(padelOne, snowball) {
+function collision(padelOne, snowball) {
   if (
-   // padelOne.y - padelOne.height > snowball.y &&
-   padelOne.y < snowball.y + snowball.height &&
+    // padelOne.y - padelOne.height > snowball.y &&
+    padelOne.y < snowball.y + snowball.height &&
     padelOne.y + padelOne.height > snowball.y &&
-    padelOne.x + padelOne.width > snowball.x  && 
-    padelOne.x <  snowball.x + snowball.width
-  )
- {
+    padelOne.x + padelOne.width > snowball.x &&
+    padelOne.x < snowball.x + snowball.width
+  ) {
     return true;
   } else {
     return false;
   }
 }
 
-requestAnimationFrame(tick);
+startGame();
