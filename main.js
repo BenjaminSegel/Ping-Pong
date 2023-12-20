@@ -105,7 +105,7 @@ function startGame() {
     y: 400,
     width: 50,
     height: 50,
-    velX: -300,
+    velX: -400,
     velY: 0,
   };
   snowTimer = 0.2;
