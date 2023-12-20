@@ -262,3 +262,36 @@ snowFlakes.push(snow)
 
 }
 startGame();
+
+
+ if(collision(playerOne, ball)) {
+  let playerCenterY = playerOne.y + playerOne.height / 2;
+  let ballCenterY = ball.y + ball.height / 2;
+  let deltaY = ballCenterY - playerCenterY;
+  bounceCount++;
+  ball.velX *= -1;
+  ball.velY = deltaY * 0.2;
+  if (ball.y < playerOne.y + playerOne.height / 2) {
+  ball.velY -= 100;
+  } else {
+  ball.velY += 100;
+  }
+  }
+  if (collision(playerTwo, ball)) {
+  let playerCenterY = playerTwo.y + playerTwo.height / 2;
+  let ballCenterY = ball.y + ball.height / 2;
+  let deltaY = ballCenterY - playerCenterY;
+  bounceCount++;
+  ball.velX *= -1;
+  ball.velY = deltaY * 0.2;
+  if (ball.y < playerTwo.y + playerTwo.height / 2) {
+  ball.velY -= 100;
+  } else {
+  ball.velY += 100;
+  }
+  if (bounceCount % 10 === 0) {
+  ball.velX *= 1.2;
+  ball.velY *= 1.2;
+  
+  }
+  }
