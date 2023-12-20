@@ -8,9 +8,12 @@
 let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
 let snowball = document.getElementById("snowball");
-let lastTime;
+let players = document.getElementById('players');
+let gameOver = document.getElementById('game-over')
 let restartButton = document.getElementById("restart-btn");
 let pointsTable = document.getElementById("points-table");
+let snowFlake = document.getElementById("snow");
+let snowTimer;
 
 let playerOne;
 let playerTwo;
@@ -21,6 +24,9 @@ let playerTwoMovingDown;
 let bounceCount;
 let vel;
 let ball;
+let lastTime;
+let snow;
+let snowFlakes
 
 function saveToLocalStorage(name, points) {
   let data = localStorage.getItem("points");
@@ -102,6 +108,8 @@ function startGame() {
     velX: -300,
     velY: 0,
   };
+  snowTimer = 0.2;
+  snowFlakes = []
   renderPointsTable()
   bounceCount = 0;
   lastTime = Date.now();
@@ -141,6 +149,16 @@ function tick() {
   let deltaTime = (now - lastTime) / 1000;
   lastTime = now;
 
+  for(let i = 0; i < snowFlakes.length; i++){
+    let snow = snowFlakes[i]
+    ctx.globalAlpha = 0.7;
+    ctx.drawImage(snowFlake, snow.x, snow.y, snow.width, snow.height)
+    ctx.globalAlpha = 1;
+    snow.y += snow.velY + deltaTime;
+    snow.x += snow.velX + deltaTime;
+    snow.opacity = 0;
+  }
+
   if (ball.y < 0 || ball.y > canvas.height - ball.height) {
     ball.velY *= -1;
   }
@@ -158,10 +176,8 @@ function tick() {
     playerTwo.y -= playerTwo.vel * deltaTime;
   }
 
-  ctx.fillStyle = "blue";
-  ctx.fillRect(playerOne.x, playerOne.y, playerOne.width, playerOne.height);
-  ctx.fillStyle = "red";
-  ctx.fillRect(playerTwo.x, playerTwo.y, playerTwo.width, playerTwo.height);
+  ctx.drawImage(players, playerOne.x, playerOne.y, playerOne.width, playerOne.height);
+  ctx.drawImage(players,  playerTwo.x, playerTwo.y, playerTwo.width, playerTwo.height);
 
   ctx.drawImage(snowball, ball.x, ball.y, ball.width, ball.height);
 
@@ -172,8 +188,12 @@ function tick() {
     let name = prompt("Write team-name");
     saveToLocalStorage(name, bounceCount);
     renderPointsTable()
-
+    ctx.drawImage(gameOver, 300, 300, 200, 200)
+    ctx.font = "25px cursive";
+    ctx.fillStyle = "black";
+    ctx.fillText( name.toUpperCase() + "'S" +  " POINTS: " + bounceCount, 300, 500);
     restartButton.style.display = "block";
+    
   } else {
     requestAnimationFrame(tick);
   }
@@ -201,9 +221,17 @@ function tick() {
     bounceCount++;
   }
 
+  if(snowTimer <= 0){
+    spawnSnow()
+    snowTimer = 0.5;
+  }
+  snowTimer -= deltaTime;
+
+  
+
   ctx.font = "25px cursive";
   ctx.fillStyle = "black";
-  ctx.fillText("Points: " + bounceCount, 380, 30);
+  ctx.fillText("Points: " + bounceCount, 350, 30);
   console.log(bounceCount);
 }
 
@@ -221,4 +249,16 @@ function collision(padelOne, snowball) {
   }
 }
 
+function spawnSnow(){
+  snow = {
+    x: Math.random() * 1200,
+    y: -50,
+    width: 50, 
+    height: 50,
+    velY: 2, 
+    velX: -2.5
+  }
+snowFlakes.push(snow)
+
+}
 startGame();
