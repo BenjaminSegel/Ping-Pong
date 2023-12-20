@@ -198,28 +198,37 @@ function tick() {
     requestAnimationFrame(tick);
   }
 
-  if (collision(playerOne, ball) && ball.y === 400) {
-    ball.velX = 320;
-    ball.velY = 100 * Math.random();
+  if(collision(playerOne, ball)) {
+    let playerCenterY = playerOne.y + playerOne.height / 2;
+    let ballCenterY = ball.y + ball.height / 2;
+    let deltaY = ballCenterY - playerCenterY;
     bounceCount++;
-  } else if (collision(playerOne, ball) && ball.y > 400) {
-    ball.velX = 330;
-    ball.velY = 200 * -Math.random();
+    ball.velX *= -1;
+    ball.velY = deltaY * 0.2;
+    if (ball.y < playerOne.y + playerOne.height / 2) {
+    ball.velY -= 100;
+    } else {
+    ball.velY += 100;
+    }
+    }
+    if (collision(playerTwo, ball)) {
+    let playerCenterY = playerTwo.y + playerTwo.height / 2;
+    let ballCenterY = ball.y + ball.height / 2;
+    let deltaY = ballCenterY - playerCenterY;
     bounceCount++;
-  } else if (collision(playerOne, ball) && ball.y < 400) {
-    ball.velX = 330;
-    ball.velY = 200 * -Math.random();
-    bounceCount++;
-  }
-  if (collision(playerTwo, ball) && ball.y < 400) {
-    ball.velX = -360;
-    ball.velY = 200 * Math.random();
-    bounceCount++;
-  } else if (collision(playerTwo, ball) && ball.y > 400) {
-    ball.velX = -320;
-    ball.velY = 200 * -Math.random();
-    bounceCount++;
-  }
+    ball.velX *= -1;
+    ball.velY = deltaY * 0.2;
+    if (ball.y < playerTwo.y + playerTwo.height / 2) {
+    ball.velY -= 100;
+    } else {
+    ball.velY += 100;
+    }
+    if (bounceCount % 10 === 0) {
+    ball.velX *= 1.2;
+    ball.velY *= 1.2;
+    
+    }
+    }
 
   if(snowTimer <= 0){
     spawnSnow()
@@ -264,34 +273,3 @@ snowFlakes.push(snow)
 startGame();
 
 
- if(collision(playerOne, ball)) {
-  let playerCenterY = playerOne.y + playerOne.height / 2;
-  let ballCenterY = ball.y + ball.height / 2;
-  let deltaY = ballCenterY - playerCenterY;
-  bounceCount++;
-  ball.velX *= -1;
-  ball.velY = deltaY * 0.2;
-  if (ball.y < playerOne.y + playerOne.height / 2) {
-  ball.velY -= 100;
-  } else {
-  ball.velY += 100;
-  }
-  }
-  if (collision(playerTwo, ball)) {
-  let playerCenterY = playerTwo.y + playerTwo.height / 2;
-  let ballCenterY = ball.y + ball.height / 2;
-  let deltaY = ballCenterY - playerCenterY;
-  bounceCount++;
-  ball.velX *= -1;
-  ball.velY = deltaY * 0.2;
-  if (ball.y < playerTwo.y + playerTwo.height / 2) {
-  ball.velY -= 100;
-  } else {
-  ball.velY += 100;
-  }
-  if (bounceCount % 10 === 0) {
-  ball.velX *= 1.2;
-  ball.velY *= 1.2;
-  
-  }
-  }
